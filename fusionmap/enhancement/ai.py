@@ -29,6 +29,7 @@ from .. import imaging as im
 MODEL_DIR = Path(__file__).resolve().parent.parent / "models"
 ENHANCER_ONNX = MODEL_DIR / "enhancer_vit.onnx"
 CONTEXT = 1  # slices on each side
+NATIVE_SPACING_MM = 1.0  # grid the network was trained on
 IN_CHANNELS = 2 * (2 * CONTEXT + 1)
 MULTIPLE = 16
 
@@ -90,6 +91,15 @@ def enhance_ai(
     """Run the ViT-hybrid enhancer slice-by-slice over the head; returns SUV on the MRI grid."""
     if not available(model_path):
         raise FileNotFoundError(f"enhancer model not found: {model_path} (run training/train_enhancer.py)")
+    sp = np.array(pet_in_mri.GetSpacing())
+    if not np.allclose(sp, NATIVE_SPACING_MM, rtol=0.05):
+        # the network was trained at 1 mm: run it there and bring the result back to this grid
+        ref = im.isotropic_reference(pet_in_mri, NATIVE_SPACING_MM)
+        mask_img = im.like(head_mask.astype(np.uint8), pet_in_mri, np.uint8)
+        head1 = im.arr(sitk.Resample(mask_img, ref, sitk.Transform(), sitk.sitkNearestNeighbor, 0)) > 0
+        out1 = enhance_ai(im.resample(pet_in_mri, ref), im.resample(mri, ref, interpolator=sitk.sitkBSpline), head1,
+                          model_path, batch, progress)
+        return sitk.Clamp(im.resample(out1, pet_in_mri), lowerBound=0.0)
     sess = _session(str(model_path))
     pet = im.arr(pet_in_mri)
     mri_a = im.arr(mri)

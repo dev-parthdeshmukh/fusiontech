@@ -59,7 +59,8 @@ export function Validation({ health }: { health: Health | null }) {
   const enh = b?.summary.enhancement ?? {};
   const regKeys = REG_ORDER.filter((k) => reg[k]);
   const enhKeys = ENH_ORDER.filter((k) => enh[k]);
-  const bestReg = regKeys.filter((k) => k !== "naive").sort((a, c) => reg[a].tre_mean_mm.mean - reg[c].tre_mean_mm.mean)[0];
+  // highlight what the pipeline actually runs: VoxelMorph only when its validation gate passes
+  const bestReg = health?.models.voxelmorph.used_by_auto && reg["rigid+voxelmorph"] ? "rigid+voxelmorph" : reg.rigid ? "rigid" : regKeys[0];
   const bestEnh = enhKeys.filter((k) => k !== "none").sort((a, c) => enh[c].psnr_db.mean - enh[a].psnr_db.mean)[0];
 
   return (
@@ -142,8 +143,9 @@ export function Validation({ health }: { health: Health | null }) {
                   </tbody>
                 </table>
                 <p className="note">
-                  The brain is nearly rigid, so mutual-information rigid alignment does most of the work (Nensa et al., 2014);
-                  the deformable stage corrects residual MRI distortion. All errors in millimetres.
+                  The brain is nearly rigid, so mutual-information rigid alignment does the work (Nensa et al., 2014). The learned
+                  VoxelMorph stage matches it but does not beat it on these phantoms (the residual ~1 mm is below PET resolution), so
+                  the default pipeline runs rigid MI; B-spline over-fits PET noise. All errors in millimetres.
                 </p>
               </div>
             </div>

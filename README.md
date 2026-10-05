@@ -49,12 +49,15 @@ Bottom: a tumour that is <i>invisible on MRI</i>. FusionMap keeps it, because up
 
 <table>
 <tr>
-<td width="50%"><img src="docs/screenshots/compare_alignment.png" alt="Swipe: naive overlay vs FusionMap"/><br/><sub><b>Step 1.</b> Swipe from the naive overlay (left) to FusionMap (right). The PET tumour lands on the MRI lesion.</sub></td>
-<td width="50%"><img src="docs/screenshots/compare_sharpening.png" alt="Swipe: registered vs AI-enhanced PET"/><br/><sub><b>Step 2.</b> Registered PET (left) vs MRI-guided AI-enhanced PET (right).</sub></td>
+<td width="44%" align="center"><img src="docs/screenshots/swipe.gif" alt="Swipe between naive overlay and FusionMap"/><br/><sub><b>Step 1, live.</b> Left of the divider: the scans as the scanners left them. The true tumour outline (green) is empty. Right: FusionMap. The uptake sits in the tumour.</sub></td>
+<td width="56%"><img src="docs/screenshots/compare_alignment.png" alt="Naive overlay vs FusionMap"/><br/><sub>Same slice, side by side: the naive overlay misplaces this tumour by <b>13.2 mm</b>; after FusionMap, the error is <b>0.34 mm</b>.</sub></td>
 </tr>
 <tr>
-<td><img src="docs/screenshots/validation.png" alt="Validation page"/><br/><sub>Every number is measured against exact ground truth on held-out simulated patients.</sub></td>
-<td><img src="docs/screenshots/report.png" alt="Printable report"/><br/><sub><b>Step 3.</b> Printable case report and a standards-conformant DICOM bundle.</sub></td>
+<td colspan="2"><img src="docs/screenshots/compare_sharpening.png" alt="Registered vs AI-enhanced PET"/><br/><sub><b>Step 2.</b> Registered PET at scanner resolution (left) vs MRI-guided AI-enhanced PET (right): the necrotic core and enhancing rim become visible.</sub></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/export.png" alt="Export tab: DICOM bundle and PACS push"/><br/><sub><b>Step 3.</b> One click to a standards-conformant DICOM bundle (MR, PET, AI-PET, RGB fusion, RT-STRUCT), or C-STORE straight into the PACS.</sub></td>
+<td><img src="docs/screenshots/report.png" alt="Printable report"/><br/><sub>Printable case report: QA metrics, tumour SUV table, key images.</sub><br/><br/><img src="docs/screenshots/validation.png" alt="Validation page"/><br/><sub>The Validation page renders the held-out benchmark.</sub></td>
 </tr>
 </table>
 
@@ -210,7 +213,8 @@ fusionmap/            Python package (inference, API, CLI) — no PyTorch needed
 training/             PyTorch: networks, data generation, trainers (enhancer, VoxelMorph, CycleGAN)
 web/                  React + TypeScript viewer (Vite)
 tests/                pytest: phantoms, registration, enhancement, DICOM round-trip, PACS, API
-docs/                 architecture, validation, literature, training, pitch, benchmark.json
+docs/                 architecture, validation, literature, training, pitch, benchmark.json, screenshots
+scripts/              README table generator, figure and GIF builders
 ```
 
 ## Cost & impact

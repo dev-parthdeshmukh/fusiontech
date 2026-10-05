@@ -49,7 +49,7 @@ export function Viewer({ caseId, viewer, report, colormaps, selected, onSelect, 
   // deep links (handy for demos): #/workspace?case=…&mode=swipe&preset=sharpening&swipe=0.55
   const [mode, setMode] = useState<Mode>(() => (hashParam("mode") as Mode) || "swipe");
   const [preset, setPreset] = useState<ComparePreset>(() => (hashParam("preset") as ComparePreset) || "alignment");
-  const [source, setSource] = useState("pet_enhanced");
+  const [source, setSource] = useState(() => hashParam("source") || "pet_enhanced");
   const [cmap, setCmap] = useState(manifest.colormap || "hot");
   const [opacity, setOpacity] = useState(0.8);
   const petHi = vols.pet_enhanced?.meta.hi ?? 1;
