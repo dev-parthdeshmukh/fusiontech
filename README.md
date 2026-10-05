@@ -40,6 +40,13 @@ tumour and damage healthy tissue.
 
 See the [validation results](#validation-measured-not-claimed) for the exact numbers.
 
+<div align="center">
+<img src="docs/screenshots/enhancement_grid.png" alt="MRI, PET as acquired, FusionMap AI, ground truth"/>
+<br/><sub><b>Step 2 on a held-out patient.</b> Top: a viable necrotic tumour. FusionMap recovers its ring and the
+cortical ribbon, while the <i>radionecrosis</i> (the other dark ellipse on the MRI) correctly stays PET-cold.
+Bottom: a tumour that is <i>invisible on MRI</i>. FusionMap keeps it, because uptake comes from the PET, not the MRI.</sub>
+</div>
+
 <table>
 <tr>
 <td width="50%"><img src="docs/screenshots/compare_alignment.png" alt="Swipe: naive overlay vs FusionMap"/><br/><sub><b>Step 1.</b> Swipe from the naive overlay (left) to FusionMap (right). The PET tumour lands on the MRI lesion.</sub></td>
