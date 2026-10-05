@@ -33,6 +33,10 @@ interface Props {
   jump: { zyx: [number, number, number]; n: number } | null;
 }
 
+function hashParam(name: string): string | null {
+  return new URLSearchParams(location.hash.split("?")[1] ?? "").get(name);
+}
+
 export function Viewer({ caseId, viewer, report, colormaps, selected, onSelect, jump }: Props) {
   const { manifest, vols } = viewer;
   const [nz, ny, nx] = manifest.shape_zyx;
@@ -42,8 +46,9 @@ export function Viewer({ caseId, viewer, report, colormaps, selected, onSelect, 
     first ? { z: first[0], y: first[1], x: first[2] } : { z: Math.floor(nz / 2), y: Math.floor(ny / 2), x: Math.floor(nx / 2) },
   );
   const [hover, setHover] = useState<Cursor | null>(null);
-  const [mode, setMode] = useState<Mode>("swipe");
-  const [preset, setPreset] = useState<ComparePreset>("alignment");
+  // deep links (handy for demos): #/workspace?case=…&mode=swipe&preset=sharpening&swipe=0.55
+  const [mode, setMode] = useState<Mode>(() => (hashParam("mode") as Mode) || "swipe");
+  const [preset, setPreset] = useState<ComparePreset>(() => (hashParam("preset") as ComparePreset) || "alignment");
   const [source, setSource] = useState("pet_enhanced");
   const [cmap, setCmap] = useState(manifest.colormap || "hot");
   const [opacity, setOpacity] = useState(0.8);
@@ -54,7 +59,7 @@ export function Viewer({ caseId, viewer, report, colormaps, selected, onSelect, 
   const [showTruth, setShowTruth] = useState(false);
   const [layout, setLayout] = useState<"quad" | "single">("quad");
   const [main, setMain] = useState<Plane>("axial");
-  const [swipe, setSwipe] = useState(0.5);
+  const [swipe, setSwipe] = useState(() => Number(hashParam("swipe") ?? 0.5));
   const [focus, setFocus] = useState<Plane>("axial");
 
   useEffect(() => {

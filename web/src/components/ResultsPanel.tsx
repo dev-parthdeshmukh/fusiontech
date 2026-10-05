@@ -169,9 +169,11 @@ function LesionTruth({ report }: { report: Report }) {
     <div className="section">
       <h3>Ground truth check</h3>
       <div className="stack">
-        {v.phantom.lesions.map((l) => {
+        {v.phantom.lesions.map((l, i) => {
           const r = rc.get(l.id);
           const h = hal.get(l.id);
+          const posBefore = v.tre_naive.lesion_mm[i];
+          const posAfter = v.tre_final.lesion_mm[i];
           const ok = l.kind === "mri_only" ? (h ? h.ratio < 1.25 : true) : Boolean(r);
           return (
             <div key={l.id} className="card" style={{ padding: "9px 11px" }}>
@@ -187,6 +189,12 @@ function LesionTruth({ report }: { report: Report }) {
                 {r && ` · SUVmax ${f2(r.suv_measured)} vs true ${f2(r.suv_true)}`}
                 {h && ` · mean SUV ${f2(h.suv_measured_mean)} vs true ${f2(h.suv_true_mean)}`}
               </div>
+              {posBefore != null && posAfter != null && (
+                <div className="note num">
+                  Tumour position error: naive overlay <b style={{ color: "#ff8a8a" }}>{f1(posBefore)} mm</b> → FusionMap{" "}
+                  <b style={{ color: "var(--good-ink)" }}>{f2(posAfter)} mm</b>
+                </div>
+              )}
             </div>
           );
         })}

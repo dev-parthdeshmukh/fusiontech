@@ -122,19 +122,16 @@ def foreground_mask(img: sitk.Image, closing_mm: float = 4.0) -> np.ndarray:
     a = arr(img)
     if not np.any(a > 0):
         return np.zeros(a.shape, bool)
-    sm = ndi.gaussian_filter(a, 1.0)
+    sm = arr(sitk.SmoothingRecursiveGaussian(to_float(img), float(np.mean(img.GetSpacing()))))
     lo, hi = robust_range(sm, lo=1, hi=99.5)
     clipped = np.clip(sm, lo, hi)
     thr = _otsu(clipped[clipped > lo]) if np.any(clipped > lo) else hi * 0.1
-    m = sm > max(thr * 0.5, lo)
-    sp = np.array(img.GetSpacing())[::-1]
-    r = np.maximum(np.round(closing_mm / sp).astype(int), 1)
-    st = np.ones(tuple(2 * r + 1), bool)
-    m = ndi.binary_closing(m, structure=st, iterations=1)
-    m = largest_component(m)
-    m = ndi.binary_fill_holes(m)
-    # slice-wise fill to close the open bottom of a head
-    for k in range(m.shape[0]):
+    m = like((sm > max(thr * 0.5, lo)).astype(np.uint8), img, np.uint8)
+    radius = [max(int(round(closing_mm / s)), 1) for s in img.GetSpacing()]
+    m = sitk.BinaryMorphologicalClosing(m, radius, sitk.sitkBall)  # multi-threaded
+    m = sitk.RelabelComponent(sitk.ConnectedComponent(m), sortByObjectSize=True) == 1
+    m = sitk.GetArrayFromImage(sitk.BinaryFillhole(m)).astype(bool)
+    for k in range(m.shape[0]):  # slice-wise fill closes the open bottom of a head
         m[k] = ndi.binary_fill_holes(m[k])
     return m
 

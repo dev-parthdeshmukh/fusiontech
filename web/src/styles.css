@@ -86,10 +86,17 @@ h1, h2, h3, h4 { margin: 0; font-weight: 650; letter-spacing: -0.01em; }
   .workspace { grid-template-columns: 270px minmax(0, 1fr) 330px; }
 }
 @media (max-width: 1050px) {
-  .workspace { grid-template-columns: 1fr; height: auto; }
-  .side, .results { border: 0; border-top: 1px solid var(--border); overflow: visible; }
-  .center { min-height: 70vh; }
+  .app { height: auto; min-height: 100%; grid-template-rows: auto auto; }
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; height: auto; }
+  .topbar { flex-wrap: wrap; row-gap: 8px; }
+  .side, .results { border: 0; border-top: 1px solid var(--border); overflow: visible; min-height: auto; }
+  .side { order: 2; }
+  .center { order: 1; height: 82vh; min-height: 520px; }
+  .results { order: 3; }
+  .brand small { display: none; }
 }
+.nav a { white-space: nowrap; }
+.results .chart, .section .chart { max-width: 460px; }
 
 .section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
 .section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 10px; font-weight: 650; }

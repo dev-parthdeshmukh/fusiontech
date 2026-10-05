@@ -57,7 +57,7 @@ class PipelineOptions:
 
     def resolved_registration(self) -> str:
         if self.registration == "auto":
-            return "rigid+voxelmorph" if vxm.available() else "rigid+bspline"
+            return "rigid+voxelmorph" if vxm.is_beneficial() else "rigid"
         return self.registration
 
     def resolved_enhancement(self) -> str:

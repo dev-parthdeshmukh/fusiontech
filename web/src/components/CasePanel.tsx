@@ -70,6 +70,7 @@ export function CasePanel({ health, cases, current, steps, onCreated, onSelect, 
   const [err, setErr] = useState<string | null>(null);
   const running = current?.status === "running" || current?.status === "queued";
   const vxmOk = health?.models.voxelmorph.available;
+  const vxmAuto = health?.models.voxelmorph.used_by_auto;
   const aiOk = health?.models.enhancer.available;
   const options = { registration, enhancement };
 
@@ -180,7 +181,7 @@ export function CasePanel({ health, cases, current, steps, onCreated, onSelect, 
           <label className="field">
             Step 1 · Registration
             <select className="input" value={registration} onChange={(e) => setRegistration(e.target.value)}>
-              <option value="auto">Auto ({vxmOk ? "Rigid MI + VoxelMorph" : "Rigid MI + B-spline"})</option>
+              <option value="auto">Auto ({vxmAuto ? "Rigid MI + VoxelMorph" : "Rigid MI"})</option>
               <option value="rigid+voxelmorph" disabled={!vxmOk}>
                 Rigid MI + VoxelMorph (AI)
               </option>

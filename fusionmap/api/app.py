@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import tempfile
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -26,10 +27,22 @@ STATIC = Path(__file__).resolve().parent.parent / "static"
 DATA = Path(os.environ.get("FUSIONMAP_DATA", Path.cwd() / "var"))
 BENCHMARK_PATHS = [DATA / "benchmark.json", Path(__file__).resolve().parents[2] / "docs" / "benchmark.json"]
 
-app = FastAPI(title="FusionMap API", version=__version__,
+manager = CaseManager(DATA / "cases")
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Demo day: the first page a visitor sees should already show a fused study.
+    if not manager.cases and os.environ.get("FUSIONMAP_PREWARM", "1") == "1":
+        cfg = PhantomConfig(seed=7, tracer="fdg", lesion_mix="showcase", n_lesions=3)
+        c = manager.new_phantom_case(cfg, {}, "Showcase patient #7 (FDG)")
+        manager.submit(c.id)
+    yield
+
+
+app = FastAPI(title="FusionMap API", version=__version__, lifespan=lifespan,
               description="AI software PET/MRI fusion — " + DISCLAIMER)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
-manager = CaseManager(DATA / "cases")
 
 
 class PipelineOptionsIn(BaseModel):
@@ -37,6 +50,7 @@ class PipelineOptionsIn(BaseModel):
     enhancement: str | None = Field(None, pattern="^(auto|none|vit|deconv)$")
     colormap: str | None = None
     pet_fwhm_mm: float | None = Field(None, ge=1, le=15)
+    working_spacing_mm: float | None = Field(None, ge=0.5, le=3.0)
     export_dicom: bool | None = None
 
 
@@ -82,7 +96,7 @@ def health():
         "version": __version__,
         "disclaimer": DISCLAIMER,
         "models": {
-            "voxelmorph": {"available": vxm.available(), "card": vxm.model_card()},
+            "voxelmorph": {"available": vxm.available(), "used_by_auto": vxm.is_beneficial(), "card": vxm.model_card()},
             "enhancer": {"available": enh_ai.available(), "card": enh_ai.model_card()},
         },
         "tracers": {k: v.name for k, v in TRACERS.items()},

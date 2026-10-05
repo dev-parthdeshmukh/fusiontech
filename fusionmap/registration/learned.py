@@ -48,6 +48,18 @@ def model_card(path: Path = VXM_ONNX) -> dict | None:
     return json.loads(meta.read_text()) if meta.exists() else None
 
 
+def is_beneficial(path: Path = VXM_ONNX) -> bool:
+    """Only let 'auto' use the network if its held-out validation beat rigid-only alignment."""
+    card = model_card(path)
+    if not available(path) or not card:
+        return False
+    v = card.get("validation", {})
+    try:
+        return float(v["residual_error_voxelmorph_mm"]) < float(v["residual_error_rigid_only_mm"]) - 0.02
+    except (KeyError, TypeError, ValueError):
+        return False
+
+
 def crop_grid(mri: sitk.Image, head_mask: np.ndarray) -> sitk.Image:
     com_zyx = ndi.center_of_mass(head_mask) if np.any(head_mask) else [(s - 1) / 2 for s in head_mask.shape]
     center = np.array(mri.TransformContinuousIndexToPhysicalPoint(tuple(float(v) for v in com_zyx[::-1])))

@@ -27,7 +27,13 @@ export function Workspace({ health, colormaps }: { health: Health | null; colorm
     }
   }, [cases, caseId]);
   useEffect(() => {
-    if (caseId) history.replaceState(null, "", `#/workspace?case=${caseId}`);
+    if (caseId) {
+      const q = new URLSearchParams(location.hash.split("?")[1] ?? "");
+      if (q.get("case") !== caseId) {
+        q.set("case", caseId);
+        history.replaceState(null, "", `#/workspace?${q.toString()}`);
+      }
+    }
     setSelected(null);
   }, [caseId]);
 

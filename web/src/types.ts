@@ -181,7 +181,7 @@ export interface Health {
   disclaimer: string;
   pacs_default?: { host: string; port: number; called_aet: string; viewer_url: string };
   models: {
-    voxelmorph: { available: boolean; card: ModelCard | null };
+    voxelmorph: { available: boolean; used_by_auto?: boolean; card: ModelCard | null };
     enhancer: { available: boolean; card: ModelCard | null };
   };
 }
