@@ -17,7 +17,7 @@ serve: ## run the web app + API on http://localhost:8000
 	$(PY) -m fusionmap.cli serve
 
 demo: ## simulate a patient and run the whole pipeline from the CLI
-	$(PY) -m fusionmap.cli demo --seed 7
+	$(PY) -m fusionmap.cli demo --seed 2026
 
 test: ## run the test suite
 	$(PY) -m pytest -q -p no:warnings

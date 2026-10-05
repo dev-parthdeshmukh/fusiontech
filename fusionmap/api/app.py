@@ -34,8 +34,8 @@ manager = CaseManager(DATA / "cases")
 async def lifespan(_app: FastAPI):
     # Demo day: the first page a visitor sees should already show a fused study.
     if not manager.cases and os.environ.get("FUSIONMAP_PREWARM", "1") == "1":
-        cfg = PhantomConfig(seed=7, tracer="fdg", lesion_mix="showcase", n_lesions=3)
-        c = manager.new_phantom_case(cfg, {}, "Showcase patient #7 (FDG)")
+        cfg = PhantomConfig(seed=2026, tracer="fdg", lesion_mix="showcase", n_lesions=3)
+        c = manager.new_phantom_case(cfg, {}, "Showcase patient #2026 (FDG)")
         manager.submit(c.id)
     yield
 
@@ -55,7 +55,7 @@ class PipelineOptionsIn(BaseModel):
 
 
 class DemoIn(BaseModel):
-    seed: int = Field(7, ge=0, le=10_000_000)
+    seed: int = Field(2026, ge=0, le=10_000_000)
     tracer: str = Field("fdg", pattern="^(fdg|fet)$")
     n_lesions: int | None = Field(None, ge=0, le=6)
     lesion_mix: str = Field("active", pattern="^(active|mixed|showcase)$")

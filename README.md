@@ -87,7 +87,7 @@ simulates and processes a showcase patient, so the workspace is populated within
 | Want to… | Do this |
 |---|---|
 | Use the full hospital demo with a real PACS | `docker compose up --build` → FusionMap on `:8000`, Orthanc PACS on `:8042` (Export tab → *Send*) |
-| Run the pipeline from the terminal | `fusionmap demo --seed 7` |
+| Run the pipeline from the terminal | `fusionmap demo --seed 2026` |
 | Process your own scans | `fusionmap run --mri mri_dicom.zip --pet pet_dicom.zip --out results/` |
 | Make hospital-style test DICOM | `fusionmap phantom --seed 3 --dicom --out var/phantom` (two separate studies, PET in Bq/ml) |
 | Reproduce the validation table | `fusionmap benchmark --cases 12` |

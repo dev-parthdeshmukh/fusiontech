@@ -1,7 +1,7 @@
 """Command-line interface.
 
     fusionmap serve                     # web app + API on http://localhost:8000
-    fusionmap demo --seed 7             # simulate a patient and run the whole pipeline
+    fusionmap demo --seed 2026          # simulate a patient and run the whole pipeline
     fusionmap run --mri MRI --pet PET   # DICOM folder/zip or NIfTI inputs
     fusionmap phantom --seed 3 --dicom  # write a simulated patient as hospital-style DICOM
     fusionmap benchmark --cases 12      # quantitative validation table
@@ -125,7 +125,7 @@ def main(argv=None):
         s.add_argument("--enhancement", default="auto")
         s.add_argument("--out", default=None if name == "demo" else "var/run")
         if name == "demo":
-            s.add_argument("--seed", type=int, default=7)
+            s.add_argument("--seed", type=int, default=2026)
             s.add_argument("--tracer", default="fdg", choices=["fdg", "fet"])
             s.add_argument("--mix", default="showcase", choices=["active", "mixed", "showcase"])
             s.add_argument("--lesions", type=int, default=3)
@@ -137,7 +137,7 @@ def main(argv=None):
         s.set_defaults(fn=fn)
 
     s = sub.add_parser("phantom")
-    s.add_argument("--seed", type=int, default=7)
+    s.add_argument("--seed", type=int, default=2026)
     s.add_argument("--tracer", default="fdg", choices=["fdg", "fet"])
     s.add_argument("--mix", default="showcase", choices=["active", "mixed", "showcase"])
     s.add_argument("--out", default="var/phantom")

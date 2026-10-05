@@ -1,0 +1,86 @@
+{
+  "name": "FusionMap MRI-guided PET enhancer (hybrid CNN / Vision Transformer U-Net)",
+  "architecture": "U-Net (base 24) with 4-layer ViT bottleneck (dim 128, 4 heads, conv positional encoding), residual output",
+  "parameters": 2450065,
+  "input": {
+    "x": [
+      "N",
+      6,
+      "H",
+      "W"
+    ],
+    "channels": "PET z-1,z,z+1 | MRI z-1,z,z+1",
+    "norm": "PET / in-head p99.5, MRI / in-head p99",
+    "multiple_of": 16
+  },
+  "output": {
+    "y": [
+      "N",
+      1,
+      "H",
+      "W"
+    ],
+    "meaning": "sharp PET of the centre slice (same normalisation)"
+  },
+  "training": {
+    "volumes": 29,
+    "iterations": 3000,
+    "best_iteration": 3000,
+    "batch": 8,
+    "crop": 128,
+    "loss": "lesion-weighted L1 (x6.0) + 0.5 gradient-L1",
+    "date": "2026-10-05"
+  },
+  "validation": {
+    "volumes": 3,
+    "psnr_input": 25.1335,
+    "psnr_pred": 36.8251,
+    "rc_input": 0.8966,
+    "rc_pred": 0.9655,
+    "history": [
+      {
+        "iter": 500,
+        "psnr_input": 25.133459141030517,
+        "psnr_pred": 33.15167569494295,
+        "rc_input": 0.8965503990573719,
+        "rc_pred": 1.0389756574809077
+      },
+      {
+        "iter": 1000,
+        "psnr_input": 25.133459141030517,
+        "psnr_pred": 35.053464378162296,
+        "rc_input": 0.8965503990573719,
+        "rc_pred": 1.0068371972689274
+      },
+      {
+        "iter": 1500,
+        "psnr_input": 25.133459141030517,
+        "psnr_pred": 35.757212468227976,
+        "rc_input": 0.8965503990573719,
+        "rc_pred": 0.9777538178332381
+      },
+      {
+        "iter": 2000,
+        "psnr_input": 25.133459141030517,
+        "psnr_pred": 36.324243227380464,
+        "rc_input": 0.8965503990573719,
+        "rc_pred": 0.972470931072363
+      },
+      {
+        "iter": 2500,
+        "psnr_input": 25.133459141030517,
+        "psnr_pred": 36.84703506424507,
+        "rc_input": 0.8965503990573719,
+        "rc_pred": 0.9631745082973184
+      },
+      {
+        "iter": 3000,
+        "psnr_input": 25.133459141030517,
+        "psnr_pred": 36.82505196517672,
+        "rc_input": 0.8965503990573719,
+        "rc_pred": 0.9655095377647753
+      }
+    ]
+  },
+  "intended_use": "Research prototype. Trained on simulated brain PET/MRI phantoms only."
+}

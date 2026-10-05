@@ -58,7 +58,7 @@ interface Props {
 
 export function CasePanel({ health, cases, current, steps, onCreated, onSelect, onDeleted, error }: Props) {
   const [tab, setTab] = useState<"demo" | "upload">("demo");
-  const [seed, setSeed] = useState(7);
+  const [seed, setSeed] = useState(2026); // outside every training seed range
   const [tracer, setTracer] = useState("fdg");
   const [mix, setMix] = useState("showcase");
   const [severity, setSeverity] = useState(1);
@@ -131,7 +131,7 @@ export function CasePanel({ health, cases, current, steps, onCreated, onSelect, 
                 Patient seed
                 <div className="row">
                   <input className="input num" type="number" value={seed} min={0} onChange={(e) => setSeed(+e.target.value)} />
-                  <button className="btn icon" title="Random patient" onClick={() => setSeed(Math.floor(Math.random() * 9000) + 100)}>
+                  <button className="btn icon" title="Random patient" onClick={() => setSeed(Math.floor(Math.random() * 9000) + 1000)}>
                     <Dices size={14} />
                   </button>
                 </div>
