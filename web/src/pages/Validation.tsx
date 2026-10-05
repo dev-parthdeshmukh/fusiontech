@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
-import { BarList } from "../components/charts";
+import { BarList, PairedDots } from "../components/charts";
 import { f1, f2, f3, METHOD_LABEL, pct } from "../lib/format";
 import type { Health } from "../types";
 
@@ -195,6 +195,32 @@ export function Validation({ health }: { health: Health | null }) {
             </div>
 
             <h2>Per patient</h2>
+            <div className="cards2" style={{ marginBottom: 12 }}>
+              <div className="card">
+                <h4 style={{ fontSize: 14, marginBottom: 6 }}>Alignment error per patient (mm)</h4>
+                <PairedDots
+                  data={b.per_case.map((c) => ({ label: `#${c.seed}`, a: c.reg.naive?.tre_mean_mm ?? 0, b: c.reg[bestReg]?.tre_mean_mm ?? 0 }))}
+                  aLabel="No registration"
+                  bLabel={METHOD_LABEL[bestReg]}
+                  reference={2}
+                  refLabel="2 mm margin"
+                  digits={2}
+                />
+              </div>
+              {bestEnh && (
+                <div className="card">
+                  <h4 style={{ fontSize: 14, marginBottom: 6 }}>PET fidelity per patient (PSNR, dB)</h4>
+                  <PairedDots
+                    data={b.per_case.map((c) => ({ label: `#${c.seed}`, a: c.enh.none?.psnr_db ?? 0, b: c.enh[bestEnh]?.psnr_db ?? 0 }))}
+                    aLabel="Registered PET"
+                    bLabel={METHOD_LABEL[bestEnh]}
+                    reference={30}
+                    refLabel="30 dB"
+                    digits={1}
+                  />
+                </div>
+              )}
+            </div>
             <div className="card" style={{ overflowX: "auto" }}>
               <table className="table">
                 <thead>

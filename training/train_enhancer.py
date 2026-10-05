@@ -188,7 +188,7 @@ def main():
             hist.append({"iter": it, **m})
             print(f"   VAL PSNR {m['psnr_input']:.2f} -> {m['psnr_pred']:.2f} dB | lesion RC "
                   f"{m['rc_input']:.3f} -> {m['rc_pred']:.3f}", flush=True)
-            score = m["psnr_pred"] + 10 * (m["rc_pred"] or 0)
+            score = m["psnr_pred"] - 10 * abs((m["rc_pred"] or 0) - 1)  # fidelity, and SUVmax error either way
             if score > best[0]:
                 best = (score, it)
                 torch.save(net.state_dict(), ckpt)
