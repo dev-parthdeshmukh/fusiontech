@@ -14,10 +14,12 @@ MRI. They have the data. What they lack is the fusion.
 **[0:45, the solution]** FusionMap is software that does that fusion in three steps, in about a
 minute, on the hospital's existing computer:
 
-1. **It fixes the mismatch.** Mutual-information registration brings the alignment error from about
-   10 mm down to under 1 mm. A VoxelMorph neural network is built in for deformable cases.
+1. **It fixes the mismatch.** On 12 held-out patients, mutual-information registration takes the
+   alignment error from 11.8 mm to 0.86 mm in under a second. A VoxelMorph neural network is built in
+   for deformable cases.
 2. **It sharpens the blurry PET.** An MRI-guided Vision-Transformer U-Net recovers the tumour
-   brightness that scanner blur hides. PSNR goes up by about 10 dB.
+   brightness that scanner blur hides: PSNR goes from 26.4 to 36.6 dB, and tumour SUV comes back to
+   within about 1 % of truth.
 3. **It writes one colour-coded DICOM.** It also writes the tumour contours as an RT-STRUCT, and
    pushes everything straight into the hospital PACS and the treatment-planning system.
 
@@ -43,7 +45,7 @@ processed automatically on first start. Open `http://localhost:8000`.
 
 1. **Workspace → Compare → Alignment.** Move the mouse across the axial view. *"Left: the two scans
    overlaid as the scanners left them. The tumour glow is off the MRI lesion. Right: after
-   FusionMap. It sits on it."* Point at the hero number on the right (e.g. *8.5 → 0.6 mm*) and the
+   FusionMap. It sits on it."* Point at the hero number on the right (showcase patient: *10.4 → 0.93 mm*) and the
    green *"inside a 2 mm radiotherapy margin"* line.
 2. **Compare → Sharpening.** *"Left: the PET as acquired, blurry. Right: AI-enhanced. Small tumours
    get their true brightness back."* Open the **Enhance** tab and show the recovery chart.

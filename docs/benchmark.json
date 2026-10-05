@@ -1,0 +1,1602 @@
+{
+  "fusionmap_version": "1.0.0",
+  "date": "2026-10-05",
+  "machine": "x86_64 / 3.11.15",
+  "cases": 12,
+  "seeds": [
+    1000,
+    1011
+  ],
+  "grid_mm": 1.0,
+  "models": {
+    "voxelmorph": {
+      "name": "FusionMap VoxelMorph-diff (PET->MRI)",
+      "architecture": "3-D U-Net on a 4 mm grid, enc (16,32,32) / dec (32,32) / final (32,16); stationary velocity at 1/2 resolution (8 mm), 7-step scaling & squaring",
+      "parameters": 182067,
+      "input": {
+        "x": [
+          1,
+          2,
+          48,
+          56,
+          48
+        ],
+        "channels": [
+          "MRI (fixed)",
+          "rigidly aligned PET (moving)"
+        ],
+        "grid": "4.0 mm canonical grid centred on the head (2 mm sampling, 2x pooled)",
+        "norm": "in-head p99"
+      },
+      "output": {
+        "vel": [
+          1,
+          3,
+          24,
+          28,
+          24
+        ],
+        "units": "half-resolution voxels (dz, dy, dx)"
+      },
+      "training": {
+        "pairs": 184,
+        "iterations": 3000,
+        "best_iteration": "best checkpoint (export-only)",
+        "loss": "end-point error + 0.1*(-MI) + 0.05*diffusion",
+        "date": "2026-10-05"
+      },
+      "validation": {
+        "pairs": 16,
+        "residual_error_rigid_only_mm": 1.1729,
+        "residual_error_voxelmorph_mm": 1.1721,
+        "history": []
+      },
+      "intended_use": "Research prototype. Trained on simulated brain PET/MRI phantoms only.",
+      "note": "Early-stopped at 3,000 of 12,000 planned iterations: validation residual error matched rigid-only alignment (1.172 vs 1.173 mm). On brain phantoms the residual non-rigid motion (~1 mm) is below what 6 mm-resolution PET resolves, so FusionMap's auto mode keeps rigid MI; VoxelMorph remains selectable and is the intended engine for deformable body sites."
+    },
+    "enhancer": {
+      "name": "FusionMap MRI-guided PET enhancer (hybrid CNN / Vision Transformer U-Net)",
+      "architecture": "U-Net (base 24) with 4-layer ViT bottleneck (dim 128, 4 heads, conv positional encoding), residual output",
+      "parameters": 2450065,
+      "input": {
+        "x": [
+          "N",
+          6,
+          "H",
+          "W"
+        ],
+        "channels": "PET z-1,z,z+1 | MRI z-1,z,z+1",
+        "norm": "PET / in-head p99.5, MRI / in-head p99",
+        "multiple_of": 16
+      },
+      "output": {
+        "y": [
+          "N",
+          1,
+          "H",
+          "W"
+        ],
+        "meaning": "sharp PET of the centre slice (same normalisation)"
+      },
+      "training": {
+        "volumes": 29,
+        "iterations": 3000,
+        "best_iteration": 3000,
+        "batch": 8,
+        "crop": 128,
+        "loss": "lesion-weighted L1 (x6.0) + 0.5 gradient-L1",
+        "date": "2026-10-05"
+      },
+      "validation": {
+        "volumes": 3,
+        "psnr_input": 25.1335,
+        "psnr_pred": 36.8251,
+        "rc_input": 0.8966,
+        "rc_pred": 0.9655,
+        "history": [
+          {
+            "iter": 500,
+            "psnr_input": 25.133459141030517,
+            "psnr_pred": 33.15167569494295,
+            "rc_input": 0.8965503990573719,
+            "rc_pred": 1.0389756574809077
+          },
+          {
+            "iter": 1000,
+            "psnr_input": 25.133459141030517,
+            "psnr_pred": 35.053464378162296,
+            "rc_input": 0.8965503990573719,
+            "rc_pred": 1.0068371972689274
+          },
+          {
+            "iter": 1500,
+            "psnr_input": 25.133459141030517,
+            "psnr_pred": 35.757212468227976,
+            "rc_input": 0.8965503990573719,
+            "rc_pred": 0.9777538178332381
+          },
+          {
+            "iter": 2000,
+            "psnr_input": 25.133459141030517,
+            "psnr_pred": 36.324243227380464,
+            "rc_input": 0.8965503990573719,
+            "rc_pred": 0.972470931072363
+          },
+          {
+            "iter": 2500,
+            "psnr_input": 25.133459141030517,
+            "psnr_pred": 36.84703506424507,
+            "rc_input": 0.8965503990573719,
+            "rc_pred": 0.9631745082973184
+          },
+          {
+            "iter": 3000,
+            "psnr_input": 25.133459141030517,
+            "psnr_pred": 36.82505196517672,
+            "rc_input": 0.8965503990573719,
+            "rc_pred": 0.9655095377647753
+          }
+        ]
+      },
+      "intended_use": "Research prototype. Trained on simulated brain PET/MRI phantoms only."
+    }
+  },
+  "summary": {
+    "registration": {
+      "naive": {
+        "tre_mean_mm": {
+          "mean": 11.8289,
+          "std": 1.8556,
+          "median": 12.053,
+          "n": 12
+        },
+        "tre_p95_mm": {
+          "mean": 15.2981,
+          "std": 2.4379,
+          "median": 15.3456,
+          "n": 12
+        },
+        "lesion_tre_mm": {
+          "mean": 11.5614,
+          "std": 1.8498,
+          "median": 11.5152,
+          "n": 12
+        },
+        "seconds": {
+          "mean": 0.0,
+          "std": 0.0,
+          "median": 0.0,
+          "n": 12
+        },
+        "cases_under_2mm": 0.0
+      },
+      "rigid": {
+        "tre_mean_mm": {
+          "mean": 0.8607,
+          "std": 0.0691,
+          "median": 0.8818,
+          "n": 12
+        },
+        "tre_p95_mm": {
+          "mean": 1.5158,
+          "std": 0.1499,
+          "median": 1.531,
+          "n": 12
+        },
+        "lesion_tre_mm": {
+          "mean": 0.8457,
+          "std": 0.2342,
+          "median": 0.8474,
+          "n": 12
+        },
+        "seconds": {
+          "mean": 0.7548,
+          "std": 0.0384,
+          "median": 0.7495,
+          "n": 12
+        },
+        "cases_under_2mm": 1.0
+      },
+      "rigid+bspline": {
+        "tre_mean_mm": {
+          "mean": 0.9232,
+          "std": 0.1594,
+          "median": 0.9962,
+          "n": 12
+        },
+        "tre_p95_mm": {
+          "mean": 1.5827,
+          "std": 0.2007,
+          "median": 1.6105,
+          "n": 12
+        },
+        "lesion_tre_mm": {
+          "mean": 0.8177,
+          "std": 0.298,
+          "median": 0.862,
+          "n": 12
+        },
+        "seconds": {
+          "mean": 7.4078,
+          "std": 1.2946,
+          "median": 7.0515,
+          "n": 12
+        },
+        "cases_under_2mm": 1.0
+      },
+      "rigid+voxelmorph": {
+        "tre_mean_mm": {
+          "mean": 0.8578,
+          "std": 0.0705,
+          "median": 0.8753,
+          "n": 12
+        },
+        "tre_p95_mm": {
+          "mean": 1.5084,
+          "std": 0.1525,
+          "median": 1.5245,
+          "n": 12
+        },
+        "lesion_tre_mm": {
+          "mean": 0.839,
+          "std": 0.2339,
+          "median": 0.8342,
+          "n": 12
+        },
+        "seconds": {
+          "mean": 0.9826,
+          "std": 0.0473,
+          "median": 0.977,
+          "n": 12
+        },
+        "cases_under_2mm": 1.0
+      }
+    },
+    "enhancement": {
+      "none": {
+        "psnr_db": {
+          "mean": 26.373,
+          "std": 2.6917,
+          "median": 25.22,
+          "n": 12
+        },
+        "ssim": {
+          "mean": 0.6511,
+          "std": 0.0305,
+          "median": 0.6579,
+          "n": 12
+        },
+        "nmae": {
+          "mean": 0.0392,
+          "std": 0.0126,
+          "median": 0.0433,
+          "n": 12
+        },
+        "lesion_rc": {
+          "mean": 0.9109,
+          "std": 0.0964,
+          "median": 0.9223,
+          "n": 25
+        },
+        "lesion_rc_abs_error": {
+          "mean": 0.1028,
+          "std": 0.0816,
+          "median": 0.0777,
+          "n": 25
+        },
+        "hallucination_ratio": {
+          "mean": 1.058,
+          "std": 0.0688,
+          "median": 1.0629,
+          "n": 5
+        },
+        "sensitivity": 0.96,
+        "false_positives_per_case": 0.0,
+        "seconds": {
+          "mean": 0.0,
+          "std": 0.0,
+          "median": 0.0,
+          "n": 12
+        }
+      },
+      "deconv": {
+        "psnr_db": {
+          "mean": 27.1969,
+          "std": 2.4706,
+          "median": 25.9825,
+          "n": 12
+        },
+        "ssim": {
+          "mean": 0.734,
+          "std": 0.0278,
+          "median": 0.7415,
+          "n": 12
+        },
+        "nmae": {
+          "mean": 0.0354,
+          "std": 0.0099,
+          "median": 0.0395,
+          "n": 12
+        },
+        "lesion_rc": {
+          "mean": 0.984,
+          "std": 0.0651,
+          "median": 1.006,
+          "n": 25
+        },
+        "lesion_rc_abs_error": {
+          "mean": 0.053,
+          "std": 0.0411,
+          "median": 0.0356,
+          "n": 25
+        },
+        "hallucination_ratio": {
+          "mean": 1.0389,
+          "std": 0.0558,
+          "median": 1.0404,
+          "n": 5
+        },
+        "sensitivity": 1.0,
+        "false_positives_per_case": 0.0,
+        "seconds": {
+          "mean": 2.8228,
+          "std": 0.3679,
+          "median": 2.6745,
+          "n": 12
+        }
+      },
+      "vit": {
+        "psnr_db": {
+          "mean": 36.6305,
+          "std": 1.8755,
+          "median": 35.744,
+          "n": 12
+        },
+        "ssim": {
+          "mean": 0.9793,
+          "std": 0.0025,
+          "median": 0.9789,
+          "n": 12
+        },
+        "nmae": {
+          "mean": 0.0101,
+          "std": 0.0022,
+          "median": 0.0113,
+          "n": 12
+        },
+        "lesion_rc": {
+          "mean": 0.9943,
+          "std": 0.0647,
+          "median": 0.9889,
+          "n": 25
+        },
+        "lesion_rc_abs_error": {
+          "mean": 0.0511,
+          "std": 0.0401,
+          "median": 0.047,
+          "n": 25
+        },
+        "hallucination_ratio": {
+          "mean": 1.0483,
+          "std": 0.1103,
+          "median": 1.0143,
+          "n": 5
+        },
+        "sensitivity": 1.0,
+        "false_positives_per_case": 0.0,
+        "seconds": {
+          "mean": 5.6947,
+          "std": 0.5716,
+          "median": 5.589,
+          "n": 12
+        }
+      }
+    }
+  },
+  "per_case": [
+    {
+      "seed": 1000,
+      "tracer": "fdg",
+      "lesions": [
+        "active",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 12.840333196911399,
+          "tre_p95_mm": 18.648149308262653,
+          "tre_max_mm": 20.742534217971127,
+          "lesion_tre_mm": 12.007700177027417,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.8762343197716604,
+          "tre_p95_mm": 1.5963021981779644,
+          "tre_max_mm": 2.2611962647033583,
+          "lesion_tre_mm": 0.8823976044678025,
+          "seconds": 0.796
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 1.0138455961082837,
+          "tre_p95_mm": 1.589864691910628,
+          "tre_max_mm": 1.909586661135346,
+          "lesion_tre_mm": 1.0114406885094989,
+          "seconds": 7.801
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.8723499323602575,
+          "tre_p95_mm": 1.5990034510684392,
+          "tre_max_mm": 2.2277079883900845,
+          "lesion_tre_mm": 0.8701966244313595,
+          "seconds": 1.05
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 23.253,
+          "ssim": 0.6468,
+          "nmae": 0.0549,
+          "rc": [
+            0.9739,
+            0.8241
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8001,
+            "mean_centroid_error_mm": 0.915
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 24.34,
+          "ssim": 0.7314,
+          "nmae": 0.04785,
+          "rc": [
+            1.0206,
+            0.9009
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.798,
+            "mean_centroid_error_mm": 0.95
+          },
+          "seconds": 3.684
+        },
+        "vit": {
+          "psnr_db": 35.242,
+          "ssim": 0.979,
+          "nmae": 0.01209,
+          "rc": [
+            0.9738,
+            0.9889
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8816,
+            "mean_centroid_error_mm": 0.433
+          },
+          "seconds": 7.452
+        }
+      }
+    },
+    {
+      "seed": 1001,
+      "tracer": "fet",
+      "lesions": [
+        "active",
+        "active",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 13.424780893356594,
+          "tre_p95_mm": 14.510363636081305,
+          "tre_max_mm": 15.143614996259378,
+          "lesion_tre_mm": 13.537161526524768,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.8974150591605017,
+          "tre_p95_mm": 1.6294245591172039,
+          "tre_max_mm": 2.076688566037258,
+          "lesion_tre_mm": 0.723571642923329,
+          "seconds": 0.734
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 1.0171907310838217,
+          "tre_p95_mm": 1.6317867686694767,
+          "tre_max_mm": 2.9071947642708444,
+          "lesion_tre_mm": 1.0943984932392736,
+          "seconds": 6.363
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.8907754011914307,
+          "tre_p95_mm": 1.615605295128893,
+          "tre_max_mm": 2.0693234457418472,
+          "lesion_tre_mm": 0.7140680597292878,
+          "seconds": 0.945
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 28.908,
+          "ssim": 0.6653,
+          "nmae": 0.02584,
+          "rc": [
+            0.9956,
+            0.7756,
+            0.9223
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 3,
+            "detected": 3,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7764,
+            "mean_centroid_error_mm": 0.638
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 29.628,
+          "ssim": 0.7463,
+          "nmae": 0.02458,
+          "rc": [
+            1.006,
+            0.8519,
+            1.025
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 3,
+            "detected": 3,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7898,
+            "mean_centroid_error_mm": 0.639
+          },
+          "seconds": 2.468
+        },
+        "vit": {
+          "psnr_db": 35.935,
+          "ssim": 0.9784,
+          "nmae": 0.0112,
+          "rc": [
+            1.0278,
+            0.948,
+            0.9273
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 3,
+            "detected": 3,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8669,
+            "mean_centroid_error_mm": 0.337
+          },
+          "seconds": 5.318
+        }
+      }
+    },
+    {
+      "seed": 1002,
+      "tracer": "fdg",
+      "lesions": [
+        "mri_only",
+        "active",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 9.585570264086499,
+          "tre_p95_mm": 12.300620291069853,
+          "tre_max_mm": 14.111885547574373,
+          "lesion_tre_mm": 10.349085108659622,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.9290118111273643,
+          "tre_p95_mm": 1.6934251967934664,
+          "tre_max_mm": 2.421457487299971,
+          "lesion_tre_mm": 1.1156540646905573,
+          "seconds": 0.749
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 1.0351341276145767,
+          "tre_p95_mm": 1.6421055387609484,
+          "tre_max_mm": 2.07736454794207,
+          "lesion_tre_mm": 1.2194537167667872,
+          "seconds": 7.442
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.932120958079344,
+          "tre_p95_mm": 1.6938598255653399,
+          "tre_max_mm": 2.425186398513657,
+          "lesion_tre_mm": 1.1209450030267132,
+          "seconds": 0.965
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 23.7,
+          "ssim": 0.6518,
+          "nmae": 0.05235,
+          "rc": [
+            0.7979,
+            0.9665
+          ],
+          "hallucination": [
+            0.9874
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7019,
+            "mean_centroid_error_mm": 1.048
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 24.788,
+          "ssim": 0.7377,
+          "nmae": 0.04554,
+          "rc": [
+            0.9696,
+            0.9785
+          ],
+          "hallucination": [
+            0.9765
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7721,
+            "mean_centroid_error_mm": 0.887
+          },
+          "seconds": 3.021
+        },
+        "vit": {
+          "psnr_db": 35.058,
+          "ssim": 0.9771,
+          "nmae": 0.01219,
+          "rc": [
+            1.047,
+            0.9558
+          ],
+          "hallucination": [
+            1.0143
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8892,
+            "mean_centroid_error_mm": 0.652
+          },
+          "seconds": 5.892
+        }
+      }
+    },
+    {
+      "seed": 1003,
+      "tracer": "fet",
+      "lesions": [
+        "active",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 12.345301699594096,
+          "tre_p95_mm": 18.228656873115767,
+          "tre_max_mm": 20.491107070234424,
+          "lesion_tre_mm": 11.245621512773152,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.7220280650726697,
+          "tre_p95_mm": 1.2071068534482639,
+          "tre_max_mm": 1.590802866497806,
+          "lesion_tre_mm": 0.7087544973730472,
+          "seconds": 0.778
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 0.7640013405346797,
+          "tre_p95_mm": 1.5268975317827451,
+          "tre_max_mm": 2.518901099757148,
+          "lesion_tre_mm": 0.5116543246879002,
+          "seconds": 6.377
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.7139584347560994,
+          "tre_p95_mm": 1.1929868480888903,
+          "tre_max_mm": 1.5617527005966731,
+          "lesion_tre_mm": 0.7034324795267738,
+          "seconds": 0.993
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 30.308,
+          "ssim": 0.6828,
+          "nmae": 0.02283,
+          "rc": [
+            0.8717,
+            0.7819
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7232,
+            "mean_centroid_error_mm": 0.674
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 30.894,
+          "ssim": 0.7625,
+          "nmae": 0.02199,
+          "rc": [
+            0.9935,
+            0.9101
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7264,
+            "mean_centroid_error_mm": 0.668
+          },
+          "seconds": 2.575
+        },
+        "vit": {
+          "psnr_db": 41.007,
+          "ssim": 0.9845,
+          "nmae": 0.00543,
+          "rc": [
+            0.934,
+            0.8681
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7694,
+            "mean_centroid_error_mm": 0.394
+          },
+          "seconds": 5.766
+        }
+      }
+    },
+    {
+      "seed": 1004,
+      "tracer": "fdg",
+      "lesions": [
+        "active",
+        "active",
+        "mri_only"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 15.228848798304277,
+          "tre_p95_mm": 17.201197464609784,
+          "tre_max_mm": 19.10954153012689,
+          "lesion_tre_mm": 14.823078882751915,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.8873787400102616,
+          "tre_p95_mm": 1.5138080727060692,
+          "tre_max_mm": 1.9264817308317934,
+          "lesion_tre_mm": 0.7475886838364287,
+          "seconds": 0.732
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 1.1563277107102206,
+          "tre_p95_mm": 1.9527331912912504,
+          "tre_max_mm": 2.6657987407154273,
+          "lesion_tre_mm": 0.93953982172008,
+          "seconds": 7.065
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.8824781029735256,
+          "tre_p95_mm": 1.4954282768699312,
+          "tre_max_mm": 1.9040935499782121,
+          "lesion_tre_mm": 0.7469064970264497,
+          "seconds": 0.966
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 24.05,
+          "ssim": 0.6566,
+          "nmae": 0.05032,
+          "rc": [
+            0.8012,
+            1.0326
+          ],
+          "hallucination": [
+            1.1745
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8074,
+            "mean_centroid_error_mm": 0.939
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 25.127,
+          "ssim": 0.741,
+          "nmae": 0.04385,
+          "rc": [
+            0.9075,
+            1.0759
+          ],
+          "hallucination": [
+            1.1359
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8293,
+            "mean_centroid_error_mm": 0.841
+          },
+          "seconds": 2.498
+        },
+        "vit": {
+          "psnr_db": 35.419,
+          "ssim": 0.9778,
+          "nmae": 0.01179,
+          "rc": [
+            0.9778,
+            1.0046
+          ],
+          "hallucination": [
+            1.2598
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.9021,
+            "mean_centroid_error_mm": 0.324
+          },
+          "seconds": 5.453
+        }
+      }
+    },
+    {
+      "seed": 1005,
+      "tracer": "fet",
+      "lesions": [
+        "active",
+        "mri_only"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 12.686434506613502,
+          "tre_p95_mm": 17.939114739624042,
+          "tre_max_mm": 21.153271201062243,
+          "lesion_tre_mm": 12.96557429369065,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.7543023354661978,
+          "tre_p95_mm": 1.3252125765435614,
+          "tre_max_mm": 1.7661244094400983,
+          "lesion_tre_mm": 0.7936250027822912,
+          "seconds": 0.772
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 0.6533864236114355,
+          "tre_p95_mm": 1.1565588981384491,
+          "tre_max_mm": 1.7544816052479335,
+          "lesion_tre_mm": 0.3824192103836065,
+          "seconds": 6.409
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.7469707638287805,
+          "tre_p95_mm": 1.3191835995078964,
+          "tre_max_mm": 1.7518716961257212,
+          "lesion_tre_mm": 0.7749150350792869,
+          "seconds": 1.011
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 26.08,
+          "ssim": 0.5623,
+          "nmae": 0.03789,
+          "rc": [
+            0.8327
+          ],
+          "hallucination": [
+            0.9892
+          ],
+          "detection": {
+            "pet_positive_lesions": 1,
+            "detected": 1,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8294,
+            "mean_centroid_error_mm": 0.857
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 26.525,
+          "ssim": 0.6525,
+          "nmae": 0.03665,
+          "rc": [
+            0.8838
+          ],
+          "hallucination": [
+            0.9924
+          ],
+          "detection": {
+            "pet_positive_lesions": 1,
+            "detected": 1,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8521,
+            "mean_centroid_error_mm": 0.946
+          },
+          "seconds": 3.144
+        },
+        "vit": {
+          "psnr_db": 37.481,
+          "ssim": 0.9748,
+          "nmae": 0.00875,
+          "rc": [
+            1.0489
+          ],
+          "hallucination": [
+            0.9413
+          ],
+          "detection": {
+            "pet_positive_lesions": 1,
+            "detected": 1,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8771,
+            "mean_centroid_error_mm": 0.402
+          },
+          "seconds": 5.667
+        }
+      }
+    },
+    {
+      "seed": 1006,
+      "tracer": "fdg",
+      "lesions": [
+        "pet_only",
+        "pet_only",
+        "mri_only"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 11.760718526642293,
+          "tre_p95_mm": 16.180811851554505,
+          "tre_max_mm": 17.807507572582033,
+          "lesion_tre_mm": 11.784857796063065,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.9515698797839142,
+          "tre_p95_mm": 1.720979133169516,
+          "tre_max_mm": 2.5204010715047103,
+          "lesion_tre_mm": 0.9865486195870196,
+          "seconds": 0.75
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 1.059859381609377,
+          "tre_p95_mm": 1.618198703390813,
+          "tre_max_mm": 2.3473161841860675,
+          "lesion_tre_mm": 1.1059650985847826,
+          "seconds": 7.06
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.9512188927090549,
+          "tre_p95_mm": 1.7200738238443425,
+          "tre_max_mm": 2.5049022745524976,
+          "lesion_tre_mm": 0.9789813034466484,
+          "seconds": 0.963
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 24.178,
+          "ssim": 0.6608,
+          "nmae": 0.04933,
+          "rc": [
+            1.0204,
+            0.8066
+          ],
+          "hallucination": [
+            1.0629
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8348,
+            "mean_centroid_error_mm": 1.108
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 25.262,
+          "ssim": 0.7431,
+          "nmae": 0.04305,
+          "rc": [
+            1.0886,
+            0.9489
+          ],
+          "hallucination": [
+            1.0404
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8518,
+            "mean_centroid_error_mm": 1.033
+          },
+          "seconds": 2.676
+        },
+        "vit": {
+          "psnr_db": 34.301,
+          "ssim": 0.9774,
+          "nmae": 0.01166,
+          "rc": [
+            0.9928,
+            0.8822
+          ],
+          "hallucination": [
+            0.9911
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8092,
+            "mean_centroid_error_mm": 0.971
+          },
+          "seconds": 5.722
+        }
+      }
+    },
+    {
+      "seed": 1007,
+      "tracer": "fet",
+      "lesions": [
+        "active",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 10.837260204331226,
+          "tre_p95_mm": 13.63190875249461,
+          "tre_max_mm": 15.04808823363197,
+          "lesion_tre_mm": 10.644878528995816,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.9346085177486566,
+          "tre_p95_mm": 1.630813920852675,
+          "tre_max_mm": 2.1849680109809486,
+          "lesion_tre_mm": 1.2086009825961266,
+          "seconds": 0.772
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 0.8611543328933288,
+          "tre_p95_mm": 1.6027330209038677,
+          "tre_max_mm": 2.209498300693463,
+          "lesion_tre_mm": 0.7844955075459011,
+          "seconds": 6.728
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.9350406356756498,
+          "tre_p95_mm": 1.6168854296932589,
+          "tre_max_mm": 2.172827562659424,
+          "lesion_tre_mm": 1.1942973389571665,
+          "seconds": 1.007
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 29.885,
+          "ssim": 0.6755,
+          "nmae": 0.02382,
+          "rc": [
+            1.0697,
+            0.9425
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.782,
+            "mean_centroid_error_mm": 1.232
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 30.343,
+          "ssim": 0.7519,
+          "nmae": 0.02309,
+          "rc": [
+            1.0489,
+            1.0001
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7953,
+            "mean_centroid_error_mm": 1.266
+          },
+          "seconds": 2.673
+        },
+        "vit": {
+          "psnr_db": 37.789,
+          "ssim": 0.9821,
+          "nmae": 0.00847,
+          "rc": [
+            1.0521,
+            0.9318
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8821,
+            "mean_centroid_error_mm": 0.62
+          },
+          "seconds": 5.36
+        }
+      }
+    },
+    {
+      "seed": 1008,
+      "tracer": "fdg",
+      "lesions": [
+        "active",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 10.632935426507363,
+          "tre_p95_mm": 11.93529869318333,
+          "tre_max_mm": 12.856134430322639,
+          "lesion_tre_mm": 9.998035957279171,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.831714065678686,
+          "tre_p95_mm": 1.4636777779258952,
+          "tre_max_mm": 1.9819057653721117,
+          "lesion_tre_mm": 0.9830436700526086,
+          "seconds": 0.734
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 0.9785019302867981,
+          "tre_p95_mm": 1.7627855289157381,
+          "tre_max_mm": 2.6936710042973466,
+          "lesion_tre_mm": 0.4931829402097335,
+          "seconds": 10.465
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.8414249025614909,
+          "tre_p95_mm": 1.4635774862236097,
+          "tre_max_mm": 1.9708217807939368,
+          "lesion_tre_mm": 0.9947256154410016,
+          "seconds": 0.988
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 24.36,
+          "ssim": 0.6591,
+          "nmae": 0.04867,
+          "rc": [
+            0.9456,
+            1.0484
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.86,
+            "mean_centroid_error_mm": 1.032
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 25.44,
+          "ssim": 0.7421,
+          "nmae": 0.04231,
+          "rc": [
+            1.0233,
+            1.0274
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8583,
+            "mean_centroid_error_mm": 0.959
+          },
+          "seconds": 2.694
+        },
+        "vit": {
+          "psnr_db": 35.499,
+          "ssim": 0.9789,
+          "nmae": 0.01144,
+          "rc": [
+            1.0519,
+            1.0256
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.932,
+            "mean_centroid_error_mm": 0.436
+          },
+          "seconds": 5.621
+        }
+      }
+    },
+    {
+      "seed": 1009,
+      "tracer": "fet",
+      "lesions": [
+        "active",
+        "active",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 10.811144911789372,
+          "tre_p95_mm": 13.181904910761594,
+          "tre_max_mm": 14.699752982157305,
+          "lesion_tre_mm": 10.55593007819556,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.8603498260923298,
+          "tre_p95_mm": 1.3471483171404686,
+          "tre_max_mm": 1.741557643374858,
+          "lesion_tre_mm": 0.8123339281590227,
+          "seconds": 0.671
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 0.7641137720068834,
+          "tre_p95_mm": 1.3888447304196412,
+          "tre_max_mm": 1.9349005740717962,
+          "lesion_tre_mm": 0.5788024507635364,
+          "seconds": 7.043
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.8529135627280406,
+          "tre_p95_mm": 1.3350270495929093,
+          "tre_max_mm": 1.7062535759919477,
+          "lesion_tre_mm": 0.7981712018864718,
+          "seconds": 0.88
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 29.753,
+          "ssim": 0.6747,
+          "nmae": 0.02398,
+          "rc": [
+            0.9825,
+            1.0004,
+            0.8714
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 3,
+            "detected": 3,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8088,
+            "mean_centroid_error_mm": 0.933
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 30.417,
+          "ssim": 0.7556,
+          "nmae": 0.02289,
+          "rc": [
+            1.0334,
+            1.0118,
+            0.9241
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 3,
+            "detected": 3,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8197,
+            "mean_centroid_error_mm": 0.892
+          },
+          "seconds": 2.561
+        },
+        "vit": {
+          "psnr_db": 37.09,
+          "ssim": 0.9815,
+          "nmae": 0.00974,
+          "rc": [
+            0.9706,
+            0.9514,
+            1.179
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 3,
+            "detected": 3,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8669,
+            "mean_centroid_error_mm": 0.354
+          },
+          "seconds": 5.065
+        }
+      }
+    },
+    {
+      "seed": 1010,
+      "tracer": "fdg",
+      "lesions": [
+        "active",
+        "active",
+        "mri_only"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 8.16152874301454,
+          "tre_p95_mm": 12.494548746992317,
+          "tre_max_mm": 14.47579536034026,
+          "lesion_tre_mm": 7.602357677061129,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.8899127908072355,
+          "tre_p95_mm": 1.52616343294181,
+          "tre_max_mm": 1.9248443019886832,
+          "lesion_tre_mm": 0.9387729774955641,
+          "seconds": 0.833
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 1.0735611083552226,
+          "tre_p95_mm": 1.7636460468307822,
+          "tre_max_mm": 2.146613563153677,
+          "lesion_tre_mm": 1.1947972576680321,
+          "seconds": 9.765
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.8781636327434158,
+          "tre_p95_mm": 1.511045475605302,
+          "tre_max_mm": 1.932638325182445,
+          "lesion_tre_mm": 0.924759787561389,
+          "seconds": 1.067
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 23.791,
+          "ssim": 0.6521,
+          "nmae": 0.05158,
+          "rc": [
+            0.9833,
+            0.7139
+          ],
+          "hallucination": [
+            1.076
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 1,
+            "sensitivity": 0.5,
+            "false_positives": 0,
+            "mean_dice": 0.8861,
+            "mean_centroid_error_mm": 1.028
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 24.856,
+          "ssim": 0.7353,
+          "nmae": 0.04508,
+          "rc": [
+            1.0356,
+            0.8691
+          ],
+          "hallucination": [
+            1.0494
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.7496,
+            "mean_centroid_error_mm": 0.761
+          },
+          "seconds": 3.321
+        },
+        "vit": {
+          "psnr_db": 35.553,
+          "ssim": 0.9789,
+          "nmae": 0.01143,
+          "rc": [
+            0.9874,
+            1.0702
+          ],
+          "hallucination": [
+            1.0352
+          ],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8988,
+            "mean_centroid_error_mm": 0.335
+          },
+          "seconds": 5.464
+        }
+      }
+    },
+    {
+      "seed": 1011,
+      "tracer": "fet",
+      "lesions": [
+        "pet_only",
+        "active"
+      ],
+      "reg": {
+        "naive": {
+          "tre_mean_mm": 13.63157173549618,
+          "tre_p95_mm": 17.32403126572694,
+          "tre_max_mm": 18.373155745143922,
+          "lesion_tre_mm": 13.22194282427045,
+          "seconds": 0.0
+        },
+        "rigid": {
+          "tre_mean_mm": 0.7940204571354856,
+          "tre_p95_mm": 1.5358130179663974,
+          "tre_max_mm": 2.032472997846933,
+          "lesion_tre_mm": 0.24752307736486878,
+          "seconds": 0.737
+        },
+        "rigid+bspline": {
+          "tre_mean_mm": 0.7008569010544744,
+          "tre_p95_mm": 1.3561470345663165,
+          "tre_max_mm": 2.0349571351109006,
+          "lesion_tre_mm": 0.4960322316899662,
+          "seconds": 6.375
+        },
+        "rigid+voxelmorph": {
+          "tre_mean_mm": 0.7959250952132668,
+          "tre_p95_mm": 1.537983044215229,
+          "tre_max_mm": 2.040248637635605,
+          "lesion_tre_mm": 0.24698764647862045,
+          "seconds": 0.956
+        }
+      },
+      "enh": {
+        "none": {
+          "psnr_db": 28.21,
+          "ssim": 0.6251,
+          "nmae": 0.02941,
+          "rc": [
+            0.9173,
+            0.8943
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8983,
+            "mean_centroid_error_mm": 0.33
+          },
+          "seconds": 0.0
+        },
+        "deconv": {
+          "psnr_db": 28.743,
+          "ssim": 0.7085,
+          "nmae": 0.02827,
+          "rc": [
+            1.0491,
+            1.016
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8806,
+            "mean_centroid_error_mm": 0.38
+          },
+          "seconds": 2.559
+        },
+        "vit": {
+          "psnr_db": 39.192,
+          "ssim": 0.9817,
+          "nmae": 0.00681,
+          "rc": [
+            1.0195,
+            1.0404
+          ],
+          "hallucination": [],
+          "detection": {
+            "pet_positive_lesions": 2,
+            "detected": 2,
+            "sensitivity": 1.0,
+            "false_positives": 0,
+            "mean_dice": 0.8919,
+            "mean_centroid_error_mm": 0.413
+          },
+          "seconds": 5.557
+        }
+      }
+    }
+  ],
+  "wall_seconds": 481.9
+}
