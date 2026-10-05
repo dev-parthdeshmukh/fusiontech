@@ -34,7 +34,7 @@ tumour and damage healthy tissue.
 
 | | Step | How | Result on held-out patients |
 |---|---|---|---|
-| **1** | **Fix the positional mismatch** | Mutual-information rigid registration, then **VoxelMorph-diff** deformable refinement (fold-free) | ~10 mm → **< 1 mm** alignment error |
+| **1** | **Fix the positional mismatch** | Mutual-information rigid registration; **VoxelMorph-diff** deformable network integrated (fold-free), enabled automatically only when it beats rigid | ~10 mm → **< 1 mm** alignment error |
 | **2** | **Sharpen the blurry PET** | **MRI-guided hybrid CNN / Vision-Transformer U-Net** (2.5-D) | **+10 dB PSNR**, small-tumour SUVmax recovered |
 | **3** | **One colour-coded DICOM** | PET colour-mapped on MRI, plus SUV tumour volumes and an **RT-STRUCT** | Drops into any **PACS** over DICOM C-STORE |
 
@@ -60,9 +60,10 @@ Bottom: a tumour that is <i>invisible on MRI</i>. FusionMap keeps it, because up
 
 ## What makes it different
 
-- **Honest AI.** Every simulated patient contains a viable tumour, an **MRI-occult tumour** (PET-only)
-  and a **radionecrosis** (MRI-enhancing but PET-cold). FusionMap must find the first two and must not
-  invent uptake in the third. That proves the AI takes *uptake* from PET and only *edges* from MRI.
+- **Honest AI.** The showcase patient contains a viable tumour, an **MRI-occult tumour** (PET-only)
+  and a **radionecrosis** (MRI-enhancing but PET-cold); training and benchmark patients mix all three
+  kinds. FusionMap must find the first two and must not invent uptake in the third. That proves the AI
+  takes *uptake* from PET and only *edges* from MRI.
 - **Measured, not claimed.** We built digital patients from the MNI152 brain with tumours, scanner
   blur, noise and a different head pose in each scanner. Because we created the mismatch, we report
   alignment error in **millimetres** and tumour SUV recovery per lesion.
@@ -127,8 +128,9 @@ flowchart LR
     MRI[MRI DICOM] --> L[Standardise<br/>LPS, 1 mm grid]
     PET[PET DICOM<br/>Bq/ml → SUV] --> L
     L --> R1[Rigid MI<br/>moments init, 3-level pyramid]
-    R1 --> R2[VoxelMorph-diff<br/>ONNX · 4 mm · scaling & squaring]
-    R2 --> E[ViT-hybrid U-Net<br/>MRI-guided 2.5-D enhancement]
+    R1 -.optional.-> R2[VoxelMorph-diff<br/>ONNX · 4 mm · scaling & squaring]
+    R1 --> E[ViT-hybrid U-Net<br/>MRI-guided 2.5-D enhancement]
+    R2 -.-> E
     E --> F[Colour fusion + hotspots<br/>SUVmax · SUVpeak · MTV · TLG · TBR]
     F --> X[DICOM bundle<br/>MR · PET · FUSED · RTSTRUCT]
     X --> P[(PACS / treatment planning)]
@@ -139,8 +141,13 @@ flowchart LR
     on T1 but bright on FDG.
   - The brain is nearly rigid, so rigid MI does most of the work (Nensa et al. 2014).
   - VoxelMorph-diff predicts a stationary velocity field that is integrated into a diffeomorphic
-    warp in one forward pass. It corrects residual MRI distortion, and its minimum Jacobian
-    determinant is reported to prove there is no folding.
+    warp in one forward pass; its minimum Jacobian determinant is reported to prove there is no
+    folding.
+  - **An honest result:** on brain phantoms, VoxelMorph matched but did not beat rigid MI (residual
+    1.172 vs 1.173 mm). The leftover ~1 mm distortion is below what 6 mm-resolution PET resolves.
+    FusionMap's `auto` mode only enables a learned model whose own validation beats the classical
+    baseline, so the default stays rigid MI. VoxelMorph remains one click away and is the engine for
+    deformable body sites on the roadmap.
 - **Enhancement.**
   - A U-Net with a 4-layer Vision-Transformer bottleneck reads three neighbouring slices of PET and
     MRI and predicts the sharp PET. Convolutions keep local detail; attention captures global context.

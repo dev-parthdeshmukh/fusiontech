@@ -54,6 +54,11 @@ The benchmark uses seeds ≥ 1000, so no benchmark patient was ever seen during 
   auxiliary losses. The MI term keeps the model image-driven, as it must be on real data.
 - **Why a 4 mm grid.** PET resolves only about 6 mm. Coarser sampling makes each iteration about
   8× cheaper, which buys the 10× more iterations that sub-voxel motion estimation needs on a CPU.
+- **Result.** The run was early-stopped at 3,000 iterations. Validation residual error was
+  1.172 mm vs 1.173 mm for rigid-only. The network learned to leave a good rigid alignment alone,
+  but not to improve on it: the residual ~1 mm is below the PET's resolving power.
+  `fusionmap.registration.learned.is_beneficial()` reads the model card, so `auto` registration keeps
+  rigid MI until a retrained model beats it by more than 0.02 mm (e.g. on deformable body data).
 
 ## Conditional CycleGAN (`training/train_cyclegan.py`)
 

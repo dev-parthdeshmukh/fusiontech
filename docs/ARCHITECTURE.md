@@ -9,8 +9,9 @@ flowchart LR
     MRI --> L[Load & standardise<br/>LPS, 1 mm fusion grid]
     PET --> L
     L --> R1[Step 1a · Rigid MI<br/>moments init, 3-level pyramid]
-    R1 --> R2[Step 1b · VoxelMorph-diff<br/>ONNX, 4 mm grid, scaling & squaring]
-    R2 --> E[Step 2 · ViT-hybrid U-Net<br/>MRI-guided 2.5-D PET enhancement]
+    R1 -.optional, validation-gated.-> R2[Step 1b · VoxelMorph-diff<br/>ONNX, 4 mm grid, scaling & squaring]
+    R1 --> E[Step 2 · ViT-hybrid U-Net<br/>MRI-guided 2.5-D PET enhancement]
+    R2 -.-> E
     E --> F[Step 3 · Fusion & analysis<br/>colour LUT, TBR≥1.6 hotspots, SUV metrics]
     F --> X[DICOM bundle<br/>MR · PET_REG · PET_AI · FUSED · RTSTRUCT]
     X --> PACS[(PACS / TPS<br/>C-STORE)]
@@ -44,6 +45,9 @@ flowchart LR
 - **Transforms.** ITK convention: a registration transform maps *fixed* (MRI) points to
   *moving* (PET) points. The final transform is `Composite([rigid, displacement])`, meaning
   `rigid(p + u(p))`.
+- **Model gating.** `registration="auto"` uses VoxelMorph only if `learned.is_beneficial()`, i.e.
+  the model card's held-out validation beats rigid-only. `enhancement="auto"` uses the ViT hybrid
+  whenever its ONNX model is present, else Richardson–Lucy.
 - **Display.** Radiological convention: patient right on screen left, anterior up in axial,
   superior up in coronal and sagittal.
 

@@ -1,0 +1,45 @@
+{
+  "name": "FusionMap VoxelMorph-diff (PET->MRI)",
+  "architecture": "3-D U-Net on a 4 mm grid, enc (16,32,32) / dec (32,32) / final (32,16); stationary velocity at 1/2 resolution (8 mm), 7-step scaling & squaring",
+  "parameters": 182067,
+  "input": {
+    "x": [
+      1,
+      2,
+      48,
+      56,
+      48
+    ],
+    "channels": [
+      "MRI (fixed)",
+      "rigidly aligned PET (moving)"
+    ],
+    "grid": "4.0 mm canonical grid centred on the head (2 mm sampling, 2x pooled)",
+    "norm": "in-head p99"
+  },
+  "output": {
+    "vel": [
+      1,
+      3,
+      24,
+      28,
+      24
+    ],
+    "units": "half-resolution voxels (dz, dy, dx)"
+  },
+  "training": {
+    "pairs": 184,
+    "iterations": 3000,
+    "best_iteration": "best checkpoint (export-only)",
+    "loss": "end-point error + 0.1*(-MI) + 0.05*diffusion",
+    "date": "2026-10-05"
+  },
+  "validation": {
+    "pairs": 16,
+    "residual_error_rigid_only_mm": 1.1729,
+    "residual_error_voxelmorph_mm": 1.1721,
+    "history": []
+  },
+  "intended_use": "Research prototype. Trained on simulated brain PET/MRI phantoms only.",
+  "note": "Early-stopped at 3,000 of 12,000 planned iterations: validation residual error matched rigid-only alignment (1.172 vs 1.173 mm). On brain phantoms the residual non-rigid motion (~1 mm) is below what 6 mm-resolution PET resolves, so FusionMap's auto mode keeps rigid MI; VoxelMorph remains selectable and is the intended engine for deformable body sites."
+}

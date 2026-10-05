@@ -95,7 +95,7 @@ export function About() {
           <div className="row wrap" style={{ gap: 10, justifyContent: "center", alignItems: "stretch" }}>
             <Flow t="Inputs" d="MRI DICOM + PET DICOM from two scanners, different days, different coordinates" c="var(--muted)" />
             <ArrowRight size={18} className="muted" style={{ alignSelf: "center" }} />
-            <Flow t="1 · Register" d="Mutual-information rigid alignment → VoxelMorph deformable refinement (diffeomorphic)" c="var(--mri)" />
+            <Flow t="1 · Register" d="Mutual-information rigid alignment, VoxelMorph deformable refinement when it helps" c="var(--mri)" />
             <ArrowRight size={18} className="muted" style={{ alignSelf: "center" }} />
             <Flow t="2 · Enhance" d="MRI-guided ViT-hybrid U-Net sharpens the blurry PET; uptake from PET, edges from MRI" c="var(--warning)" />
             <ArrowRight size={18} className="muted" style={{ alignSelf: "center" }} />
@@ -111,8 +111,8 @@ export function About() {
             <h3>Fix the positional mismatch</h3>
             <p>
               Moments initialisation, then multi-resolution rigid registration maximising Mattes mutual information — robust even
-              though grey matter is dark on T1 but bright on FDG. A VoxelMorph-diff network then predicts a fold-free deformation
-              in a single pass for residual MRI distortion.
+              though grey matter is dark on T1 but bright on FDG. A VoxelMorph-diff network (fold-free, one pass) is built in for
+              deformation; in the brain it matched but did not beat rigid MI, so the auto mode keeps rigid until it does.
             </p>
           </div>
           <div className="stepcard">
@@ -149,7 +149,7 @@ export function About() {
           <div className="stepcard">
             <Wand2 size={18} color="var(--accent)" />
             <h3>Honest AI</h3>
-            <p>Every simulated patient includes an MRI-occult tumour and a PET-cold radionecrosis, so we can prove the enhancer neither misses uptake nor paints MRI anatomy into PET.</p>
+            <p>Training and benchmark patients mix viable tumours, MRI-occult tumours and PET-cold radionecrosis (the showcase patient has one of each), so we can prove the enhancer neither misses uptake nor paints MRI anatomy into PET.</p>
           </div>
           <div className="stepcard">
             <Ruler size={18} color="var(--accent)" />

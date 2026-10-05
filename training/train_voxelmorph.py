@@ -68,6 +68,9 @@ def main():
     ap.add_argument("--lambda-reg", type=float, default=0.05)
     ap.add_argument("--out", type=Path, default=ROOT / "fusionmap/models/voxelmorph.onnx")
     ap.add_argument("--threads", type=int, default=4)
+    ap.add_argument("--export-only", action="store_true",
+                    help="skip training: validate and export training/runs/voxelmorph_best.pt")
+    ap.add_argument("--note", default="", help="free-text note stored in the model card")
     a = ap.parse_args()
     torch.set_num_threads(a.threads)
     torch.manual_seed(0)
@@ -99,7 +102,7 @@ def main():
     ckpt.parent.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     hist = []
-    for it in range(1, a.iters + 1):
+    for it in range(1, 0 if a.export_only else a.iters + 1):
         x, gt, brain = to_tensor(train[rng.integers(len(train))], bool(rng.random() < 0.5), rng)
         warped, disp, vel = net(x)
         err = ((disp - gt) ** 2).sum(1, keepdim=True)[brain] * learned.NET_SPACING**2
@@ -138,11 +141,13 @@ def main():
                   "grid": f"{learned.NET_SPACING} mm canonical grid centred on the head (2 mm sampling, 2x pooled)",
                   "norm": "in-head p99"},
         "output": {"vel": [1, 3, *(s // 2 for s in size)], "units": "half-resolution voxels (dz, dy, dx)"},
-        "training": {"pairs": len(train), "iterations": a.iters, "best_iteration": best[1],
+        "training": {"pairs": len(train), "iterations": a.iters,
+                     "best_iteration": "best checkpoint (export-only)" if a.export_only else best[1],
                      "loss": f"end-point error + {a.lambda_mi}*(-MI) + {a.lambda_reg}*diffusion", "date": str(date.today())},
         "validation": {"pairs": len(val), "residual_error_rigid_only_mm": round(base, 4),
                        "residual_error_voxelmorph_mm": round(err, 4), "history": hist},
         "intended_use": "Research prototype. Trained on simulated brain PET/MRI phantoms only.",
+        "note": a.note,
     }
     a.out.with_suffix(".json").write_text(json.dumps(card, indent=2))
     print(json.dumps(card["validation"] | {"history": None}, indent=2))

@@ -14,8 +14,8 @@ MRI. They have the data. What they lack is the fusion.
 **[0:45, the solution]** FusionMap is software that does that fusion in three steps, in about a
 minute, on the hospital's existing computer:
 
-1. **It fixes the mismatch.** Mutual-information registration plus a VoxelMorph neural network
-   bring the alignment error from about 10 mm down to under 1 mm.
+1. **It fixes the mismatch.** Mutual-information registration brings the alignment error from about
+   10 mm down to under 1 mm. A VoxelMorph neural network is built in for deformable cases.
 2. **It sharpens the blurry PET.** An MRI-guided Vision-Transformer U-Net recovers the tumour
    brightness that scanner blur hides. PSNR goes up by about 10 dB.
 3. **It writes one colour-coded DICOM.** It also writes the tumour contours as an RT-STRUCT, and
@@ -74,17 +74,19 @@ CT gives poor soft-tissue contrast in the brain and adds radiation dose. PET/MRI
 about 20 % of PET/CT (Nensa 2014). Many centres also already have the MRI.
 
 **"Doesn't the AI just copy the MRI into the PET?"**
-That is exactly the failure mode we test for. Every simulated patient includes a radionecrosis,
+That is exactly the failure mode we test for. Our patients include radionecrosis,
 which enhances on MRI but has no PET uptake, and an MRI-occult tumour, which has PET uptake but no
 MRI sign. We report the "radionecrosis ratio" (should be about 1) and detection of the MRI-occult
 tumour. FusionMap also always exports the conventional registered PET alongside the AI PET, so a
 physician can read quantitative SUVs from the unmodified image.
 
 **"Why VoxelMorph if the brain is rigid?"**
-Rigid mutual information does most of the work in the brain, and we say so. VoxelMorph corrects the
-residual non-rigid part: MRI geometric distortion and brain shift. It runs in under a second and is
-diffeomorphic; we report the Jacobian to prove there is no folding. For body sites (lung, prostate)
-it becomes the main event.
+Good question, and we measured it. On brain phantoms our VoxelMorph matched rigid mutual information
+(1.172 vs 1.173 mm residual) but didn't beat it. The leftover ~1 mm distortion is below what 6 mm PET
+can resolve. So the pipeline's `auto` mode, which only turns on a learned model if *its own
+validation* beats the classical baseline, keeps rigid MI. VoxelMorph is integrated, diffeomorphic and
+under a second; it is the engine for lung and prostate, where organs really deform. We'd rather show
+you a gate that keeps AI out when it doesn't help than an AI that doesn't help.
 
 **"Why a ViT hybrid instead of CycleGAN?"**
 With paired data, a supervised ViT hybrid gives higher fidelity. Attention captures global structure
