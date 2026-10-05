@@ -1,0 +1,30 @@
+# FusionMap + a real PACS (Orthanc) for the end-to-end hospital demo.
+#   docker compose up --build
+#   FusionMap  -> http://localhost:8000      (Export tab -> "Send" pushes to Orthanc)
+#   Orthanc    -> http://localhost:8042      (browse the fused study that arrived over DICOM)
+services:
+  fusionmap:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      FUSIONMAP_PACS_HOST: orthanc
+      FUSIONMAP_PACS_PORT: "4242"
+      FUSIONMAP_PACS_AET: ORTHANC
+      FUSIONMAP_PACS_VIEWER: http://localhost:8042/ui/app/
+    volumes: ["fusionmap-data:/data"]
+    depends_on: [orthanc]
+
+  orthanc:
+    image: orthancteam/orthanc:latest
+    ports: ["8042:8042", "4242:4242"]
+    environment:
+      ORTHANC__NAME: FusionMap-PACS
+      ORTHANC__AUTHENTICATION_ENABLED: "false"
+      ORTHANC__DICOM_AET: ORTHANC
+      ORTHANC__DICOM_ALWAYS_ALLOW_STORE: "true"
+      STONE_WEB_VIEWER_PLUGIN_ENABLED: "true"
+    volumes: ["orthanc-db:/var/lib/orthanc/db"]
+
+volumes:
+  fusionmap-data:
+  orthanc-db:

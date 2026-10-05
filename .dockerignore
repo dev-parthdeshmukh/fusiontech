@@ -1,0 +1,9 @@
+.venv
+.git
+var
+training/data
+training/runs
+web/node_modules
+fusionmap/static
+**/__pycache__
+.pytest_cache
