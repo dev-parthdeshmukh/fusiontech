@@ -13,3 +13,4 @@ web/dist/
 *.log
 build/
 dist/
+presentation/node_modules/

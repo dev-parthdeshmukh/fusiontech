@@ -1,10 +1,14 @@
 # FusionMap: pitch, demo script and judge Q&A
 
+The slide deck is [`presentation/FusionMap_Pitch.pptx`](../presentation/FusionMap_Pitch.pptx): 17 animated slides whose
+speaker notes carry a 5½-minute version of this script, slide by slide. See [`presentation/README.md`](../presentation/README.md).
+
 ## The 3-minute pitch
 
-**[0:00, the hook]** A tumour that is 15 millimetres away from where the radiotherapist thinks it is
-will not be cured. That is the error you get today when a doctor in a district cancer centre puts a
-PET scan next to an MRI scan and compares them by eye.
+**[0:00, the hook]** Thirteen millimetres. That is how far the tumour glow on our showcase patient's
+PET sits from the real tumour when the PET is simply laid over an MRI from a different scanner; across
+our 12 test patients it reaches 15 mm. A radiotherapy plan that far off treats healthy brain and lets
+the tumour escape.
 
 **[0:20, the problem]** PET shows where cancer is *alive*. MRI shows *exactly where* it is in the
 anatomy. The machine that does both at once, an integrated PET-MRI, costs 4 to 6 million dollars,

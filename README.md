@@ -196,7 +196,7 @@ flowchart LR
     import them.
 
 Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Training: [docs/TRAINING.md](docs/TRAINING.md) ·
-Pitch & demo script: [docs/PITCH.md](docs/PITCH.md)
+Pitch & demo script: [docs/PITCH.md](docs/PITCH.md) · animated pitch deck: [presentation/FusionMap_Pitch.pptx](presentation/FusionMap_Pitch.pptx) ([PDF](presentation/FusionMap_Pitch.pdf))
 
 ## Repository layout
 
