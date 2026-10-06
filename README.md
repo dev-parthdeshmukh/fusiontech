@@ -9,7 +9,7 @@
 **An AI software pipeline that fuses separately acquired PET and MRI scans into one clinically usable,
 colour-coded DICOM image. It runs on the hospital's existing PC, with no GPU and no new hardware.**
 
-*Team Code Blooded · AI in Healthcare / Medical Imaging & Machine Learning*
+*Team MeatRiders · AI in Healthcare / Medical Imaging & Machine Learning*
 
 ![FusionMap workspace](docs/screenshots/workspace.png)
 
@@ -237,9 +237,9 @@ treatment accuracy for the **6–8 lakh** cancer patients treated in India each 
 3. Ship a PACS plug-in (OHIF extension), run reader studies with nuclear-medicine physicians, and
    pursue the CDSCO software-as-a-medical-device route.
 
-## Team Code Blooded
+## Team MeatRiders
 
-Atharva Jadhav · Anushka Ghodekar · Rohan Leo
+Parth Deshmukh · Atharva Jadhav · Samuel Cardoza · Ralston Crasta
 
 ## Licence & data
 

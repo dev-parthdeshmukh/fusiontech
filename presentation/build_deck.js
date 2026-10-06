@@ -48,8 +48,8 @@ pres.layout = "LAYOUT_WIDE"; // 13.333 x 7.5 in
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
 pres.title = "FusionMap: AI PET/MRI fusion";
 pres.subject = "Hackathon pitch deck";
-pres.author = "Team Code Blooded";
-pres.company = "Team Code Blooded";
+pres.author = "Team MeatRiders";
+pres.company = "Team MeatRiders";
 
 const C = pres.SchemeColor;
 const INK = C.text1;
@@ -89,7 +89,7 @@ pres.defineSlideMaster({
     { placeholder: { options: { name: "kicker", type: "body", x: 0.6, y: 0.42, w: 8.6, h: 0.34, fontSize: 13, bold: true, color: PET, charSpacing: 3, align: "left", valign: "middle", margin: 0 }, text: "" } },
     { placeholder: { options: { name: "title", type: "title", x: 0.6, y: 0.78, w: 12.13, h: 0.8, fontSize: 32, bold: true, color: TXT, align: "left", valign: "top", margin: 0 }, text: "" } },
     { image: { path: asset("logo.png"), x: 0.56, y: 6.9, w: 0.34, h: 0.34 } },
-    { text: { text: "FusionMap  ·  Team Code Blooded  ·  research prototype, not for clinical use", options: { x: 0.95, y: 6.92, w: 8, h: 0.3, fontSize: 10, color: MUTED, margin: 0, valign: "middle" } } },
+    { text: { text: "FusionMap  ·  Team MeatRiders  ·  research prototype, not for clinical use", options: { x: 0.95, y: 6.92, w: 8, h: 0.3, fontSize: 10, color: MUTED, margin: 0, valign: "middle" } } },
   ],
   slideNumber: { x: 12.13, y: 6.92, w: 0.6, h: 0.3, fontSize: 10, color: MUTED, align: "right" },
 });
@@ -214,7 +214,7 @@ s.addImage({ path: asset("logo.png"), x: 0.62, y: 0.75, w: 1.5, h: 1.5, altText:
 text(s, "kicker", "AI  PET / MRI  FUSION", { x: 0.8, y: 2.08, w: 6.5, h: 0.34, fontSize: 14, bold: true, color: MRI, charSpacing: 4, valign: "middle" });
 P(s, "title", "title", "FusionMap");
 P(s, "body", "subtitle", "PET-MRI precision from the scanners hospitals already own");
-text(s, "team", [R("Team Code Blooded", { bold: true, fontSize: 18, color: TXT, breakLine: true }), R("Atharva Jadhav  ·  Anushka Ghodekar  ·  Rohan Leo", { fontSize: 15, color: MUTED })], { x: 0.8, y: 5.35, w: 6.8, h: 0.8 });
+text(s, "team", [R("Team MeatRiders", { bold: true, fontSize: 18, color: TXT, breakLine: true }), R("Parth Deshmukh  ·  Atharva Jadhav  ·  Samuel Cardoza  ·  Ralston Crasta", { fontSize: 15, color: MUTED })], { x: 0.8, y: 5.35, w: 6.8, h: 0.8 });
 framed(s, "sweep", asset("sweep.gif"), 8.2, 1.17, 3.6, 4.5, "Animated sweep through a fused PET/MRI brain study", 0.12);
 text(s, "sweep_cap", "Real FusionMap output: fused PET/MRI, slice by slice", { x: 7.9, y: 5.98, w: 4.2, h: 0.3, fontSize: 11, color: MUTED, align: "center" });
 framedAnim("sweep", "fade", 0, 900);
@@ -225,7 +225,7 @@ anim("subtitle", "float", 950, 800);
 anim("team", "fade", 1350, 700);
 anim("sweep_cap", "fade", 1500, 600);
 s.addNotes(`[0:00-0:15]  OPENING
-Hi, we're Team Code Blooded, and this is FusionMap.
+Hi, we're Team MeatRiders: Parth, Atharva, Samuel and Ralston, and this is FusionMap.
 In one line: FusionMap gives hospitals PET-MRI-level precision using the PET and MRI scanners they already own, with software alone.
 (The brain on the right is real FusionMap output, scrolling through a fused study.)
 
@@ -756,9 +756,10 @@ text(s, "st2", "FusionMap turns them into a PET-MRI.", { x: 0.8, y: 2.95, w: 6.2
 s.addImage({ path: asset("logo.png"), x: 0.65, y: 4.62, w: 0.85, h: 0.85, altText: "FusionMap logo", objectName: named("logo") });
 text(s, "brand", "FusionMap", { x: 1.55, y: 4.7, w: 4, h: 0.7, fontSize: 28, bold: true, color: TXT, valign: "middle" });
 text(s, "team", [
-  R("Team Code Blooded  ·  Atharva Jadhav  ·  Anushka Ghodekar  ·  Rohan Leo", { fontSize: 15, color: MUTED, breakLine: true }),
+  R("Team MeatRiders", { fontSize: 15, bold: true, color: TXT, breakLine: true }),
+  R("Parth Deshmukh  ·  Atharva Jadhav  ·  Samuel Cardoza  ·  Ralston Crasta", { fontSize: 15, color: MUTED, breakLine: true }),
   R("github.com/dev-parthdeshmukh/fusiontech", { fontSize: 15, color: MRI, hyperlink: { url: "https://github.com/dev-parthdeshmukh/fusiontech" } }),
-], { x: 0.8, y: 5.6, w: 7.5, h: 0.75 });
+], { x: 0.8, y: 5.6, w: 7.5, h: 1.05 });
 anim("ringB", "zoom", 0, 800); anim("ringO", "zoom", 250, 800);
 anim("mip", "fade", 600, 900);
 anim("kick", "fade", 300, 500);

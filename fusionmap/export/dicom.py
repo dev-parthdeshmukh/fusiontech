@@ -96,7 +96,7 @@ def _base(ctx: StudyContext, sop_class: str, modality: str, series_uid: str, ser
     ds.ContentTime = time
     ds.InstanceCreationDate = date
     ds.InstanceCreationTime = time
-    ds.Manufacturer = "FusionMap (Team Code Blooded)"
+    ds.Manufacturer = "FusionMap (Team MeatRiders)"
     ds.ManufacturerModelName = "FusionMap"
     ds.SoftwareVersions = __version__
     ds.FrameOfReferenceUID = ctx.frame_of_reference_uid

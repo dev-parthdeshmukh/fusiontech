@@ -9,7 +9,7 @@ description = "AI software pipeline that fuses separately acquired PET and MRI s
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"
-authors = [{ name = "Team Code Blooded" }]
+authors = [{ name = "Team MeatRiders" }]
 keywords = ["pet", "mri", "image-fusion", "registration", "voxelmorph", "dicom", "medical-imaging"]
 classifiers = [
   "Programming Language :: Python :: 3",

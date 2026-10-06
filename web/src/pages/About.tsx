@@ -43,7 +43,7 @@ export function About() {
     <div className="page">
       <div className="page-inner">
         <div className="chip" style={{ marginBottom: 14 }}>
-          <Sparkles size={13} /> Team Code Blooded · AI in Healthcare / Medical Imaging
+          <Sparkles size={13} /> Team MeatRiders · AI in Healthcare / Medical Imaging
         </div>
         <h1>PET-MRI precision without the $4–6 million machine</h1>
         <p className="lead">
@@ -220,9 +220,9 @@ export function About() {
           </div>
         </div>
 
-        <h2>Team Code Blooded</h2>
+        <h2>Team MeatRiders</h2>
         <div className="row wrap" style={{ gap: 10 }}>
-          {["Atharva Jadhav", "Anushka Ghodekar", "Rohan Leo"].map((n) => (
+          {["Parth Deshmukh", "Atharva Jadhav", "Samuel Cardoza", "Ralston Crasta"].map((n) => (
             <span key={n} className="chip" style={{ fontSize: 13, padding: "6px 12px" }}>
               {n}
             </span>
